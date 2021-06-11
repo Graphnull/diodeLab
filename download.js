@@ -84,8 +84,8 @@ module.exports.getMask = async function getMask(){
   }
   if(files.indexOf('mask.bin')>-1&& 
      files.indexOf('mask.ndlt')>-1&&
-     (await fs.promises.stat('mask.bin')).size ===60927653&&
-     (await fs.promises.stat('mask.ndlt')).size ===85425
+     (await fs.promises.stat('mask.bin')).size ===60919706&&
+     (await fs.promises.stat('mask.ndlt')).size ===85372
      ){
     global.maskDataset = await openDataset('mask');
 
@@ -144,8 +144,8 @@ if(global.rgbDataset){
 }
 if(files.indexOf('rgb.bin')>-1&& 
    files.indexOf('rgb.ndlt')>-1&&
-   (await fs.promises.stat('rgb.bin')).size ===19596260843&&
-   (await fs.promises.stat('rgb.ndlt')).size ===100460
+   (await fs.promises.stat('rgb.bin')).size ===19593913754&&
+   (await fs.promises.stat('rgb.ndlt')).size ===100437
    ){
   global.rgbDataset = await openDataset('rgb');
   
@@ -207,8 +207,8 @@ if(global.depthDataset){
 }
 if(files.indexOf('depth.bin')>-1&& 
    files.indexOf('depth.ndlt')>-1&&
-   (await fs.promises.stat('depth.bin')).size ===19596260843&&
-   (await fs.promises.stat('depth.ndlt')).size ===100460
+   (await fs.promises.stat('depth.bin')).size ===2248101399&&
+   (await fs.promises.stat('depth.ndlt')).size ===103020
    ){
   global.depthDataset = await openDataset('depth');
   
