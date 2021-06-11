@@ -60,56 +60,14 @@ let downloadDataset = async ()=>{
         });
         rr.end()
       })'''*/
-      let download2 = new Promise((resolve) => {
+      let download2 =  let download2 = new Promise((resolve) => {
         const rr = http.request({
           host: 'diode-dataset.s3.amazonaws.com',
           path: '/train.tar.gz'
         }, (req) => {
           len += parseInt(req.headers['content-length']);
           req.on('data', (data) => { bcount += data.length; })
-          req
-            .pipe(new tar.Parse({
-              filter: (path) => path.slice(-4) === '.png'|| path.slice(-9) === 'depth.npy',
-              onentry: (entry) => {
-                  
-                let data = [];
-                entry.on('data', (d) => { data.push(d) })
-                entry.on('end', () => {
-                    try{
-                  let buf = Buffer.concat(data)
-                  if(entry.path.slice(-9) === 'depth.npy'){
-                    let nfile = buf.slice(-(width * height  * 4))
-                    let ndata = new Float32Array(nfile.buffer, nfile.byteOffset, width * height);
-                    depths[entry.path]=ndata;
-  
-                    let rgbPath = entry.path.slice(0,-9)+'.png'
-                    if(rgbs[rgbPath]){
-                        depthDataset.push(depths[entry.path])
-                        rgbDataset.push(rgbs[rgbPath])
-                        delete depths[entry.path]
-                        delete rgbs[rgbPath]
-                    }
-                  }else{
-                  sharp(buf).raw().toBuffer().then((img)=>{
- 
-                    rgbs[entry.path]=img;
-                    let depthPath = entry.path.slice(0, -4)+'_depth.npy'
-                    if(depths[depthPath]){
-                        depthDataset.push(depths[depthPath])
-                        rgbDataset.push(rgbs[entry.path])
-                        delete depths[depthPath]
-                        delete rgbs[entry.path]
-                    }
-      
- 
-                  })
-                  }
-                }catch(err){
-                    console.log(err)
-                }
-                })
-              }
-            }))
+          req.pipe(tar.x({}))
           req.on('end', resolve)
         });
         rr.end()
