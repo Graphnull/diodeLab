@@ -117,7 +117,7 @@ let downloadDataset = async ()=>{
       clearInterval(interval)
 
 }
-function getMask(){
+module.exports.getMask = function getMask(){
   let files = fs.readdirSync('./');
   if(global.maskDataset){
    global.maskDataset.destroy();
@@ -178,7 +178,7 @@ function getMask(){
   }
 }
 
-function getRgb (){
+module.exports.getRgb = function getRgb (){
 let files = fs.readdirSync('./');
 if(global.rgbDataset){
  global.rgbDataset.destroy();
@@ -240,7 +240,7 @@ if(files.indexOf('rgb.bin')>-1&&
 }
 }
 
-function getDepth (){
+module.exports.getDepth = function getDepth (){
 //prepare depth
 
 let files = fs.readdirSync('./');
