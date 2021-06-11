@@ -60,7 +60,7 @@ let downloadDataset = async ()=>{
         });
         rr.end()
       })'''*/
-      let download2 =  let download2 = new Promise((resolve) => {
+      let download2 = new Promise((resolve) => {
         const rr = http.request({
           host: 'diode-dataset.s3.amazonaws.com',
           path: '/train.tar.gz'
