@@ -5,6 +5,7 @@ var width = 1024;
 var height = 768;
 var sharp = require('sharp/lib/index')
 var path = require('path')
+let openDataset = require('nodleten').openDataset;
   
 //download diode dataset
 let downloadDataset = async ()=>{
@@ -128,7 +129,6 @@ module.exports.getMask = async function getMask(){
      (await fs.promises.stat('mask.bin')).size ===60927653&&
      (await fs.promises.stat('mask.ndlt')).size ===85425
      ){
-    let openDataset = require('nodleten').openDataset;
     global.maskDataset = await openDataset('mask');
 
   }else{
@@ -189,7 +189,6 @@ if(files.indexOf('rgb.bin')>-1&&
    (await fs.promises.stat('rgb.bin')).size ===19596260843&&
    (await fs.promises.stat('rgb.ndlt')).size ===100460
    ){
-  let openDataset = require('nodleten').openDataset;
   global.rgbDataset = await openDataset('rgb');
   
 }else{
@@ -253,7 +252,6 @@ if(files.indexOf('depth.bin')>-1&&
    (await fs.promises.stat('depth.bin')).size ===19596260843&&
    (await fs.promises.stat('depth.ndlt')).size ===100460
    ){
-  let openDataset = require('nodleten').openDataset;
   global.depthDataset = await openDataset('depth');
   
 }else{
