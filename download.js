@@ -6,32 +6,39 @@ var height = 768;
 var sharp = require('sharp/lib/index')
 var path = require('path')
 let openDataset = require('nodleten').openDataset;
-  
+
+let http = require('http');
+let tar = require('tar');
+
 //download diode dataset
-let downloadDataset = async ()=>{
+let downloadNormalDataset = async ()=>{
  
   let files = fs.readdirSync('./');
   if(files.indexOf('train')>-1){
-    return;
+    files = fs.readdirSync('./train/indoors/scene_00000/scan_00000/');
+    if(files.filter(f=>f.slice(-10)==='normal.npy').length>0){
+      return;
+    }
   }
     
-    let http = require('http');
-    let tar = require('tar');
- 
+
+ let interval;
+  try{
       let len = 0;
       let bcount = 0;
-      let interval = setInterval(() => {
+      interval = setInterval(() => {
         console.log(((bcount / len) * 100).toFixed(2)+'% '+bcount+' '+len)
       }, 5000)
-      /*'''
-      let download1 = new Promise((resolve) => {
+
+      await new Promise((resolve) => {
         const rr = http.request({
           host: 'diode-dataset.s3.amazonaws.com',
           path: '/train_normals.tar.gz'
         }, (req) => {
           len += parseInt(req.headers['content-length']);
           req.on('data', (data) => { bcount += data.length; })
-          req
+          req.pipe(tar.x({}))
+                 req
             .pipe(new tar.Parse({
               filter: (path) => path.slice(-4) === '.npy',
               onentry: (entry) => {
@@ -41,16 +48,13 @@ let downloadDataset = async ()=>{
                   let nfile = Buffer.concat(data).slice(-(width * height * 3 * 4))
                   let ndata = new Float32Array(nfile.buffer.slice(nfile.byteOffset, nfile.byteOffset + nfile.byteLength));
                   ndata = Buffer.from(ndata.map(v=>(v+1)*127))
-                  normals[entry.path]=ndata;
- 
-                  let rgbPath = entry.path.slice(0,-11)+'.png'
-                  //console.log(1, rgbPath, entry.path)
-                  if(rgbs[rgbPath]){
-                      normalDataset.push(normals[entry.path])
-                      rgbDataset.push(rgbs[rgbPath])
-                      delete normals[entry.path]
-                      delete rgbs[rgbPath]
-                  }
+                  fs.mkdir(entry.path.split('/').slice(0,-1).join('/')+'/', { recursive: true }, (err) => {
+                    if (err) throw err;
+                    fs.writeFile(entry.path,ndata,(err)=>{
+                      if (err) throw err;
+                    })
+                  });
+                  
  
                 })
  
@@ -59,8 +63,89 @@ let downloadDataset = async ()=>{
           req.on('end', resolve)
         });
         rr.end()
-      })'''*/
-      let download2 = new Promise((resolve) => {
+      })
+      clearInterval(interval);
+  }catch(err){
+        clearInterval(interval);
+      throw err;
+  }
+
+}
+
+
+module.exports.getNormal = async function getNormal(){
+  let files = fs.readdirSync('./');
+  if(global.normalDataset){
+   global.normalDataset.destroy();
+   delete global.normalDataset;
+  }
+  if(files.indexOf('normal.bin')>-1&& 
+     files.indexOf('normal.ndlt')>-1&&
+     (await fs.promises.stat('normal.bin')).size ===60919706&&
+     (await fs.promises.stat('normal.ndlt')).size ===85372
+     ){
+    global.normalDataset = await openDataset('normal');
+
+  }else{
+    let files = (await bucket.getFiles())[0];
+    let maskhbin = files.find(f=>f.name==='normal.bin');
+    let maskndlt = files.find(f=>f.name==='normal.ndlt');
+    if(maskhbin && maskndlt){
+        await maskhbin.download({destination:'./normal.bin'});
+        await maskndlt.download({destination:'./normal.ndlt'});
+        global.normalDataset = await openDataset('normal');
+    }else{
+      await downloadNormalDataset()
+      var folder = 'train'
+      let scenes = fs.readdirSync(folder + '/indoors/').map(v => folder + '/indoors/' + v);
+      let scans = [].concat(...scenes.map(folder => fs.readdirSync(folder).map(v => folder + '/' + v)))
+      let files = [].concat(...scans.map(folder => fs.readdirSync(folder).map(v => folder + '/' + v)));
+
+      var normalDataset = new Dataset({name:'normal', shape:[height, width,3]});
+      try{
+        for (let i = 0; i !== files.length; i++) {
+            let file = files[i];
+            if(file.slice(-11)==='_normal.npy'){
+                let data = fs.readFileSync(file).slice(-(width * height * 3 * 1));
+                let nfile = Int8Array.from((new Float32Array(data)).map(v=>v-127));
+                normalDataset.push(nfile)
+                if(i%64===0){
+                    console.log(i)
+                }
+            }
+
+        }
+        await normalDataset.writeHeaderFile()
+        await bucket.upload('./normal.bin')
+        await bucket.upload('./normal.ndlt')
+        global.normalDataset = normalDataset;
+        for (let i = 0; i !== files.length; i++) {
+            let file = files[i];
+            if(file.slice(-11)==='_normal.npy'){
+                await fs.promises.unlink(file)
+            }
+        }
+      }catch(err){
+          console.log(err)
+          normalDataset.destroy()
+      }
+    }
+  }
+}
+
+//download diode dataset
+let downloadDataset = async ()=>{
+ 
+  let files = fs.readdirSync('./');
+  if(files.indexOf('train')>-1){
+    return;
+  }
+      let len = 0;
+      let bcount = 0;
+      let interval = setInterval(() => {
+        console.log(((bcount / len) * 100).toFixed(2)+'% '+bcount+' '+len)
+      }, 5000)
+      await new Promise((resolve) => {
         const rr = http.request({
           host: 'diode-dataset.s3.amazonaws.com',
           path: '/train.tar.gz'
@@ -72,7 +157,6 @@ let downloadDataset = async ()=>{
         });
         rr.end()
       })
-      await Promise.all([download2])
       clearInterval(interval)
 
 }
