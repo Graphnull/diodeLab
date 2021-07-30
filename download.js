@@ -82,7 +82,7 @@ module.exports.getNormal = async function getNormal(){
   if(files.indexOf('normal.bin')>-1&& 
      files.indexOf('normal.ndlt')>-1&&
      (await fs.promises.stat('normal.bin')).size ===3969147869&&
-     (await fs.promises.stat('normal.ndlt')).size ===96 343
+     (await fs.promises.stat('normal.ndlt')).size ===96343
      ){
     global.normalDataset = await openDataset('normal');
 
