@@ -37,10 +37,10 @@ let downloadNormalDataset = async ()=>{
         }, (req) => {
           len += parseInt(req.headers['content-length']);
           req.on('data', (data) => { bcount += data.length; })
-          req.pipe(tar.x({}))
-                 req
+
+          req
             .pipe(new tar.Parse({
-              filter: (path) => path.slice(-4) === '.npy',
+              filter: (path) => (path.slice(-4) === '.npy')&& path.indexOf('outdoors')<0,
               onentry: (entry) => {
                 let data = [];
                 entry.on('data', (d) => { data.push(d) })
