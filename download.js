@@ -105,7 +105,7 @@ module.exports.getNormal = async function getNormal() {
         for (let i = 0; i !== files.length; i++) {
           let file = files[i];
           if (file.slice(-11) === '_normal.npy') {
-            let data = fs.readFileSync(file).slice(-(width * height * 3 * 1));
+            let data = fs.readFileSync(file);
             let nfile = Int8Array.from((new Float32Array(data)).map(v => v - 127));
             normalDataset.push(nfile)
             if (i % 64 === 0) {
@@ -118,12 +118,13 @@ module.exports.getNormal = async function getNormal() {
         await bucket.upload('./normal.bin')
         await bucket.upload('./normal.ndlt')
         global.normalDataset = normalDataset;
+        /*
         for (let i = 0; i !== files.length; i++) {
           let file = files[i];
           if (file.slice(-11) === '_normal.npy') {
             await fs.promises.unlink(file)
           }
-        }
+        }*/
       } catch (err) {
         console.log(err)
         normalDataset.destroy()
