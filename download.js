@@ -29,7 +29,7 @@ let downloadNormalDataset = async ()=>{
       interval = setInterval(() => {
         console.log(((bcount / len) * 100).toFixed(2)+'% '+bcount+' '+len)
       }, 5000)
-
+      let fsPromises = [];
       await new Promise((resolve) => {
         const rr = http.request({
           host: 'diode-dataset.s3.amazonaws.com',
@@ -42,21 +42,19 @@ let downloadNormalDataset = async ()=>{
             .pipe(new tar.Parse({
               filter: (path) => (path.slice(-4) === '.npy')&& path.indexOf('outdoors')<0,
               onentry: (entry) => {
-                let data = [];
-                entry.on('data', (d) => { data.push(d) })
-                entry.on('end', () => {
-                  let nfile = Buffer.concat(data).slice(-(width * height * 3 * 4))
-                  let ndata = new Float32Array(nfile.buffer.slice(nfile.byteOffset, nfile.byteOffset + nfile.byteLength));
-                  ndata = Buffer.from(ndata.map(v=>(v+1)*127))
-                  fs.mkdir(entry.path.split('/').slice(0,-1).join('/')+'/', { recursive: true }, (err) => {
-                    if (err) throw err;
-                    fs.writeFile(entry.path,ndata,(err)=>{
-                      if (err) throw err;
-                    })
-                  });
-                  
- 
-                })
+               
+               fsPromises.push(new Promise((resfs)=>{
+                 let data = [];
+                 entry.on('data', (d) => { data.push(d) })
+                 entry.on('end', async () => {
+                   let nfile = Buffer.concat(data).slice(-(width * height * 3 * 4))
+                   let ndata = new Float32Array(nfile.buffer.slice(nfile.byteOffset, nfile.byteOffset + nfile.byteLength));
+                   ndata = Buffer.from(ndata.map(v=>(v+1)*127))
+                   await fs.promises.mkdir(entry.path.split('/').slice(0,-1).join('/')+'/', { recursive: true })
+                   await fs.promises.writeFile(entry.path,ndata)
+                   resfs()
+                 })
+               })
  
               }
             }))
@@ -64,6 +62,7 @@ let downloadNormalDataset = async ()=>{
         });
         rr.end()
       })
+      await Promise.all(fsPromises)
       clearInterval(interval);
   }catch(err){
         clearInterval(interval);
