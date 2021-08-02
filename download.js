@@ -9,7 +9,7 @@ let openDataset = require('nodleten').openDataset;
 let fs = require('fs')
 let http = require('http');
 let tar = require('tar');
-let allFiles = require('./drive/MyDrive/normalMap/files.json').map(p=>'.'+p.slice(5,65))
+let allFiles = require('./../drive/MyDrive/normalMap/files.json').map(p=>'.'+p.slice(5,65))
 
 //download diode dataset
 let downloadNormalDataset = async () => {
