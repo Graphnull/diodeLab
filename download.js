@@ -303,8 +303,8 @@ module.exports.getDepth = async function getDepth() {
   }
   if (files.indexOf('depth.bin') > -1 &&
     files.indexOf('depth.ndlt') > -1 &&
-    (await fs.promises.stat('depth.bin')).size === 2248101399 &&
-    (await fs.promises.stat('depth.ndlt')).size === 103020
+    (await fs.promises.stat('depth.bin')).size === 2210499609 &&
+    (await fs.promises.stat('depth.ndlt')).size === 100656
   ) {
     global.depthDataset = await openDataset('depth');
 
