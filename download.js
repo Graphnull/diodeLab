@@ -180,8 +180,8 @@ module.exports.getMask = async function getMask() {
   }
   if (files.indexOf('mask.bin') > -1 &&
     files.indexOf('mask.ndlt') > -1 &&
-    (await fs.promises.stat('mask.bin')).size === 60919706 &&
-    (await fs.promises.stat('mask.ndlt')).size === 85372
+    (await fs.promises.stat('mask.bin')).size === 59890990 &&
+    (await fs.promises.stat('mask.ndlt')).size === 83498
   ) {
     global.maskDataset = await openDataset('mask');
 
@@ -240,8 +240,8 @@ module.exports.getRgb = async function getRgb() {
   }
   if (files.indexOf('rgb.bin') > -1 &&
     files.indexOf('rgb.ndlt') > -1 &&
-    (await fs.promises.stat('rgb.bin')).size === 19593913754 &&
-    (await fs.promises.stat('rgb.ndlt')).size === 100437
+    (await fs.promises.stat('rgb.bin')).size === 19175079352 &&
+    (await fs.promises.stat('rgb.ndlt')).size === 98294
   ) {
     global.rgbDataset = await openDataset('rgb');
 
