@@ -146,6 +146,8 @@ let downloadDataset = async () => {
   let interval = setInterval(() => {
     console.log(((bcount / len) * 100).toFixed(2) + '% ' + bcount + ' ' + len)
   }, 5000)
+  
+  let fsPromises = [];
   await new Promise((resolve) => {
     const rr = http.request({
       host: 'diode-dataset.s3.amazonaws.com',
@@ -153,15 +155,16 @@ let downloadDataset = async () => {
     }, (req) => {
       len += parseInt(req.headers['content-length']);
       req.on('data', (data) => { bcount += data.length; })
-      req.pipe(tar.x({filter:(path)=>{
+      let tarStream = tar.x({filter:(path)=>{
         if(templ===0){
         console.log(path.slice(0,61),allFiles[0])
         }
         let fp = path.slice(0,61)
         templ++;
         return allFiles.find(v=>fp===v)&&path.indexOf('outdoors') < 0
-      }}))
-      req.on('end', resolve)
+      }})
+      req.pipe(tarStream)
+      tarStream.on('end', resolve)
     });
     rr.end()
   })
