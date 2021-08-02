@@ -6,9 +6,10 @@ var height = 768;
 var sharp = require('sharp/lib/index')
 var path = require('path')
 let openDataset = require('nodleten').openDataset;
-
+let fs = require('fs')
 let http = require('http');
 let tar = require('tar');
+let allFiles = require('./drive/MyDrive/normalMap/files.json').map(p=>'.'+p.slice(5,65))
 
 //download diode dataset
 let downloadNormalDataset = async () => {
@@ -132,7 +133,7 @@ module.exports.getNormal = async function getNormal() {
     }
   }
 }
-
+let templ = 0;
 //download diode dataset
 let downloadDataset = async () => {
 
@@ -152,7 +153,14 @@ let downloadDataset = async () => {
     }, (req) => {
       len += parseInt(req.headers['content-length']);
       req.on('data', (data) => { bcount += data.length; })
-      req.pipe(tar.x({}))
+      req.pipe(tar.x({filter:(path)=>{
+        if(templ===0){
+        console.log(path.slice(0,61),allFiles[0])
+        }
+        let fp = path.slice(0,61)
+        templ++;
+        return allFiles.find(v=>fp===v)&&path.indexOf('outdoors') < 0
+      }}))
       req.on('end', resolve)
     });
     rr.end()
@@ -160,6 +168,7 @@ let downloadDataset = async () => {
   clearInterval(interval)
 
 }
+
 module.exports.getMask = async function getMask() {
   let files = fs.readdirSync('./');
   if (global.maskDataset) {
