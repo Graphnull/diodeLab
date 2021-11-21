@@ -87,12 +87,12 @@ module.exports.getNormal = async function getNormal() {
     global.normalDataset = await openDataset('normal');
 
   } else {
-    let files = (await bucket.getFiles())[0];
-    let maskhbin = files.find(f => f.name === 'normal.bin');
-    let maskndlt = files.find(f => f.name === 'normal.ndlt');
-    if (maskhbin && maskndlt) {
-      await maskhbin.download({ destination: './normal.bin' });
-      await maskndlt.download({ destination: './normal.ndlt' });
+    let cfiles = fs.readdirSync(cpath);
+    let binf = cfiles.find(f => f === 'normal.bin');
+    let ndltf = cfiles.find(f => f === 'normal.ndlt');
+    if (binf && ndltf) {
+      await fs.promises.copyFile(path.resolve(cpath,'./normal.bin'),'./normal.bin' );
+      await fs.promises.copyFile(path.resolve(cpath,'./normal.ndlt'),'./normal.ndlt' );
       global.normalDataset = await openDataset('normal');
     } else {
       await downloadNormalDataset()
@@ -172,7 +172,7 @@ let downloadDataset = async () => {
 
 }
 
-module.exports.getMask = async function getMask() {
+module.exports.getMask = async function getMask(cpath) {
   let files = fs.readdirSync('./');
   if (global.maskDataset) {
     global.maskDataset.destroy();
@@ -186,12 +186,13 @@ module.exports.getMask = async function getMask() {
     global.maskDataset = await openDataset('mask');
 
   } else {
-    let files = (await bucket.getFiles())[0];
-    let maskhbin = files.find(f => f.name === 'mask.bin');
-    let maskndlt = files.find(f => f.name === 'mask.ndlt');
+    
+    let cfiles = fs.readdirSync(cpath);
+    let maskhbin = cfiles.find(f => f === 'mask.bin');
+    let maskndlt = cfiles.find(f => f === 'mask.ndlt');
     if (maskhbin && maskndlt) {
-      await maskhbin.download({ destination: './mask.bin' });
-      await maskndlt.download({ destination: './mask.ndlt' });
+      await fs.promises.copyFile(path.resolve(cpath,'./mask.bin'),'./mask.bin' );
+      await fs.promises.copyFile(path.resolve(cpath,'./mask.ndlt'),'./mask.ndlt' );
       global.maskDataset = await openDataset('mask');
     } else {
       await downloadDataset()
@@ -232,7 +233,7 @@ module.exports.getMask = async function getMask() {
   }
 }
 
-module.exports.getRgb = async function getRgb() {
+module.exports.getRgb = async function getRgb(cpath) {
   let files = fs.readdirSync('./');
   if (global.rgbDataset) {
     global.rgbDataset.destroy();
@@ -246,12 +247,13 @@ module.exports.getRgb = async function getRgb() {
     global.rgbDataset = await openDataset('rgb');
 
   } else {
-    let files = (await bucket.getFiles())[0];
-    let rgbhbin = files.find(f => f.name === 'rgb.bin');
-    let rgbndlt = files.find(f => f.name === 'rgb.ndlt');
-    if (rgbhbin && rgbndlt) {
-      await rgbhbin.download({ destination: './rgb.bin' });
-      await rgbndlt.download({ destination: './rgb.ndlt' });
+    
+    let cfiles = fs.readdirSync(cpath);
+    let binf = cfiles.find(f => f === 'rgb.bin');
+    let ndltf = cfiles.find(f => f === 'rgb.ndlt');
+    if (binf && ndltf) {
+      await fs.promises.copyFile(path.resolve(cpath,'./rgb.bin'),'./rgb.bin' );
+      await fs.promises.copyFile(path.resolve(cpath,'./rgb.ndlt'),'./rgb.ndlt' );
       global.rgbDataset = await openDataset('rgb');
     } else {
 
@@ -309,12 +311,13 @@ module.exports.getDepth = async function getDepth() {
     global.depthDataset = await openDataset('depth');
 
   } else {
-    let files = (await bucket.getFiles())[0];
-    let depthhbin = files.find(f => f.name === 'depth.bin');
-    let depthndlt = files.find(f => f.name === 'depth.ndlt');
-    if (depthhbin && depthndlt) {
-      await depthhbin.download({ destination: './depth.bin' });
-      await depthndlt.download({ destination: './depth.ndlt' });
+    
+    let cfiles = fs.readdirSync(cpath);
+    let binf = cfiles.find(f => f === 'depth.bin');
+    let ndltf = cfiles.find(f => f === 'depth.ndlt');
+    if (binf && ndltf) {
+      await fs.promises.copyFile(path.resolve(cpath,'./depth.bin'),'./depth.bin' );
+      await fs.promises.copyFile(path.resolve(cpath,'./depth.ndlt'),'./depth.ndlt' );
       global.depthDataset = await openDataset('depth');
     } else {
       await downloadDataset()
