@@ -73,7 +73,7 @@ let downloadNormalDataset = async () => {
 }
 
 
-module.exports.getNormal = async function getNormal() {
+module.exports.getNormal = async function getNormal(cpath) {
   let files = fs.readdirSync('./');
   if (global.normalDataset) {
     global.normalDataset.destroy();
@@ -295,7 +295,7 @@ module.exports.getRgb = async function getRgb(cpath) {
   }
 }
 
-module.exports.getDepth = async function getDepth() {
+module.exports.getDepth = async function getDepth(cpath) {
   //prepare depth
 
   let files = fs.readdirSync('./');
